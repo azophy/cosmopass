@@ -2,24 +2,53 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimal-ui">
   <title>BabelPassGen | Multi-language Passphrase Generator</title>
+  <style>
+    .container {
+      margin: auto;
+      padding: 20px;
+      text-align: center;
+      max-width:800px;
+    }
+
+    #result {
+      font-weight:bold;
+      color:#222;
+      padding: 10px;
+      margin: 10px;
+      background-color: #ddd;
+    }
+
+    #lang_list {
+      overflow-y: scroll;
+      max-width:300px;
+      height: 80px;
+      padding:10px;
+      margin:10px auto;
+      border:1px solid #999;
+      border:1px solid #999;
+    }
+  </style>
 </head>
 <body>
 <div class="container">
   <h1>BabelPassGen</h1>
-  <h3>Multi-language passphrase generator</h3>
-  <div id="result">loading...</div>
+  <h3>Multi-language Random Passphrase Generator</h3>
+  <div id="result" onclick="copyToClipboard()">loading...</div>
 
   <div>
-    #words: <input type="number" min="1" max="100" size="3" value="6" id="wordnum">
+    #words: <input type="number" min="1" max="100" size="1" value="6" id="wordnum">
     <button id="generate" onclick="generate()">Generate new Passphrase</button>
-    <button id="copy">Copy to clipboard</button>
+    <button id="copy" onclick="copyToClipboard()">Copy to clipboard</button>
   </div>
 
   <form id="lang_form">
-    <span>Choose languages for passphrase (must be &lt; #words)</span>
-    <input type="checkbox" name="source[]" value="eff"> <label>Eff Wordlsit</label>
-    <input type="checkbox" name="source[]" value="id" checked> <label>Indonesian Wordlsit</label>
+    <p>Choose languages for passphrase (must be less then #words)</p> 
+    <div id="lang_list">
+      <input type="checkbox" name="source[]" value="eff"> <label>Eff Wordlsit</label> <br/>
+      <input type="checkbox" name="source[]" value="id" checked> <label>Indonesian Wordlsit</label> <br/>
+    </div>
   </form>
 </div>
 <script>
@@ -30,44 +59,43 @@ var loaded_wordlist={},
       'id': './wordlist/id.txt',
     };
 
-// get wordlist, return promise
-function getWordList(source_name, callback) {
-  var promiseObj = new Promise(function(resolve, reject){
-    var wordlist_path = wordlist_sources[source_name],
-        r = new XMLHttpRequest();
-    r.open("GET", wordlist_path, true);
-    r.onreadystatechange = function () {
-        if (r.readyState != 4 || r.status != 200) return;
-        wordlist = r.responseText.split("\n");
-        resolve(wordlist);
-    };
-    r.send();
-  });
-
-  return promiseObj;
-}
-
 function loadSources(callback=function(){}) {
-  // load all selected wordlist sources
+  // load all selected wordlist sources, return promise
   var form_data = new FormData(document.getElementById("lang_form")),
-      selected_sources = form_data.getAll('source[]'),
-      callback_called=false;
+      selected_sources = form_data.getAll('source[]');
 
-  selected_sources.forEach(function(src) {
-    if (!(src in loaded_wordlist)) {
-      getWordList(src).
-        then(wordlist => {
-        loaded_wordlist[src] = {
-          'list' : wordlist,
-          'length' : wordlist.length,
+  var promises = selected_sources.map(function(src) {
+    var promiseObj = new Promise(function(resolve, reject){
+      // get wordlist
+      if (src in loaded_wordlist) {
+        resolve();
+      } else {
+        var wordlist_path = wordlist_sources[src],
+            r = new XMLHttpRequest();
+        r.open("GET", wordlist_path, true);
+        r.onreadystatechange = function () {
+            if (r.readyState != 4 || r.status != 200) return;
+            wordlist = r.responseText.split("\n");
+            // store wordlist to memory
+            loaded_wordlist[src] = {
+              'list' : wordlist,
+              'length' : wordlist.length,
+            };
+
+            resolve();
         };
+        r.send();
+      }
+    });
 
-      });
-    }
+    return promiseObj;
   });
+
+  return Promise.all(promises);
 }
 
-function generate() {
+function buildLookupArray() {
+  // build lookup array
   var word_num = document.getElementById('wordnum').value,
 
       form_data = new FormData(document.getElementById("lang_form")),
@@ -76,49 +104,93 @@ function generate() {
 
   ;
 
-  loadSources();
+  var promiseObj = new Promise(function(resolve, reject){
+    // input all language into the beginning of lookup array (to make sure all language selected at least once
+    var lookup_array = selected_sources.slice();
 
-  // build lookup array
-  // input all language into the beginning of lookup array (to make sure all language selected at least once
-  var lookup_array = selected_sources.slice()
+    // fill the rest of lookup array with random selection
+    var random_array = new Uint16Array(word_num-lang_num);
+    window.crypto.getRandomValues(random_array);
+    random_array.forEach(function(val) {
+      // use the beginning of the lookup array to fill the rest of array
+      lookup_array.push(lookup_array[ val % lang_num ]);
+    });
 
-  // fill the rest of lookup array with random selection
-  var random_array = new Uint16Array(word_num-lang_num);
-  window.crypto.getRandomValues(random_array);
-  random_array.forEach(function(val) {
-    // use the beginning of the lookup array to fill the rest of array
-    lookup_array.push(lookup_array[ val % lang_num ]);
+    // shuffle lookup array, use modified fisher-yates algorithm (https://stackoverflow.com/a/6274381)
+    var temp, j, i;
+    random_array = new Uint16Array(word_num-1);
+    window.crypto.getRandomValues(random_array);
+    random_array.forEach(function(val,idx) {
+      i = word_num-idx-1;
+      j = val % (i+1);
+
+      temp=lookup_array[i];
+      lookup_array[i]=lookup_array[j]; 
+      lookup_array[j]=temp;
+    });
+
+    resolve(lookup_array);
   });
 
-
-  // shuffle lookup array, use modified fisher-yates algorithm (https://stackoverflow.com/a/6274381)
-  var temp, j, i;
-  random_array = new Uint16Array(word_num-1);
-  window.crypto.getRandomValues(random_array);
-  random_array.forEach(function(val,idx) {
-    i = word_num-idx-1;
-    j = val % (i+1);
-
-    temp=lookup_array[i];
-    lookup_array[i]=lookup_array[j]; 
-    lookup_array[j]=temp;
-  });
-
-  // actual passphrase generation
-  random_array = new Uint16Array(word_num);
-  window.crypto.getRandomValues(random_array);
-
-  var result = Array.from(random_array).map(function(val, idx) {
-      var src = lookup_array[idx];
-      var wl = loaded_wordlist[lookup_array[idx]];
-      return wl.list[val % wl.length];
-  });
-
-  document.getElementById('result').innerText = result.join(' ');
+  return promiseObj;
 }
 
+function generate() {
+  // main passphare generating function
+  var word_num = document.getElementById('wordnum').value,
+
+      form_data = new FormData(document.getElementById("lang_form")),
+      selected_sources = form_data.getAll('source[]'),
+      lang_num = selected_sources.length
+  ;
+
+  if (selected_sources.length < 1) {
+    alert('No wordlist source selected');
+    return;
+  }
+
+  if (selected_sources.length > word_num) {
+    alert('Too many wordlist source selected, must be less than #words');
+    return;
+  }
+
+  loadSources()
+  .then(() => {
+    return buildLookupArray();
+  })
+  .then(lookup_array => {
+    // actual passphrase generation
+    random_array = new Uint16Array(word_num);
+    window.crypto.getRandomValues(random_array);
+
+    var result = Array.from(random_array).map(function(val, idx) {
+        var src = lookup_array[idx];
+        var wl = loaded_wordlist[lookup_array[idx]];
+        return wl.list[val % wl.length];
+    });
+
+    document.getElementById('result').innerText = result.join(' ');
+  })
+    .catch((e) => {
+      alert(e);
+    });
+}
+
+function copyToClipboard() {
+    /* ref: https://stackoverflow.com/a/48020189 */
+
+    var range = document.createRange();
+    range.selectNode(document.getElementById("result"));
+    window.getSelection().removeAllRanges(); // clear current selection
+    window.getSelection().addRange(range); // to select text
+    document.execCommand("copy");
+    window.getSelection().removeAllRanges();// to deselect
+
+    // Alert the copied text
+    alert('Passphrase copied to clipboard');
+} 
+
 // generate at the beginning
-loadSources();
 generate();
 
 </script>
