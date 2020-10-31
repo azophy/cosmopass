@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BabelPassGen | Multi-language Passphrase Generator</title>
+</head>
+<body>
+<div class="container">
+  <h1>BabelPassGen</h1>
+  <h3>Multi-language passphrase generator</h3>
+  <div id="result">loading...</div>
+
+  <div>
+    #words: <input type="number" min="1" max="100" size="3" value="6" id="wordnum">
+    <button id="generate" onclick="generate()">Generate new Passphrase</button>
+    <button id="copy">Copy to clipboard</button>
+  </div>
+
+  <form id="lang_form">
+    <span>Choose languages for passphrase (must be &lt; #words)</span>
+    <input type="checkbox" name="source[]" value="eff"> <label>Eff Wordlsit</label>
+    <input type="checkbox" name="source[]" value="id" checked> <label>Indonesian Wordlsit</label>
+  </form>
+</div>
+<script>
+
+var loaded_wordlist={},
+    wordlist_sources = {
+      'eff': './wordlist/eff.txt',
+      'id': './wordlist/id.txt',
+    };
+
+// get wordlist, return promise
+function getWordList(source_name, callback) {
+  var promiseObj = new Promise(function(resolve, reject){
+    var wordlist_path = wordlist_sources[source_name],
+        r = new XMLHttpRequest();
+    r.open("GET", wordlist_path, true);
+    r.onreadystatechange = function () {
+        if (r.readyState != 4 || r.status != 200) return;
+        wordlist = r.responseText.split("\n");
+        resolve(wordlist);
+    };
+    r.send();
+  });
+
+  return promiseObj;
+}
+
+function loadSources(callback=function(){}) {
+  // load all selected wordlist sources
+  var form_data = new FormData(document.getElementById("lang_form")),
+      selected_sources = form_data.getAll('source[]'),
+      callback_called=false;
+
+  selected_sources.forEach(function(src) {
+    if (!(src in loaded_wordlist)) {
+      getWordList(src).
+        then(wordlist => {
+        loaded_wordlist[src] = {
+          'list' : wordlist,
+          'length' : wordlist.length,
+        };
+
+      });
+    }
+  });
+}
+
+function generate() {
+  var word_num = document.getElementById('wordnum').value,
+
+      form_data = new FormData(document.getElementById("lang_form")),
+      selected_sources = form_data.getAll('source[]'),
+      lang_num = selected_sources.length
+
+  ;
+
+  loadSources();
+
+  // build lookup array
+  // input all language into the beginning of lookup array (to make sure all language selected at least once
+  var lookup_array = selected_sources.slice()
+
+  // fill the rest of lookup array with random selection
+  var random_array = new Uint16Array(word_num-lang_num);
+  window.crypto.getRandomValues(random_array);
+  random_array.forEach(function(val) {
+    // use the beginning of the lookup array to fill the rest of array
+    lookup_array.push(lookup_array[ val % lang_num ]);
+  });
+
+
+  // shuffle lookup array, use modified fisher-yates algorithm (https://stackoverflow.com/a/6274381)
+  var temp, j, i;
+  random_array = new Uint16Array(word_num-1);
+  window.crypto.getRandomValues(random_array);
+  random_array.forEach(function(val,idx) {
+    i = word_num-idx-1;
+    j = val % (i+1);
+
+    temp=lookup_array[i];
+    lookup_array[i]=lookup_array[j]; 
+    lookup_array[j]=temp;
+  });
+
+  // actual passphrase generation
+  random_array = new Uint16Array(word_num);
+  window.crypto.getRandomValues(random_array);
+
+  var result = Array.from(random_array).map(function(val, idx) {
+      var src = lookup_array[idx];
+      var wl = loaded_wordlist[lookup_array[idx]];
+      return wl.list[val % wl.length];
+  });
+
+  document.getElementById('result').innerText = result.join(' ');
+}
+
+// generate at the beginning
+loadSources();
+generate();
+
+</script>
+</body>
+</html>
