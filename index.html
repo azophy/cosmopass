@@ -46,8 +46,12 @@
   <form id="lang_form">
     <p>Choose languages for passphrase (must be less then #words)</p> 
     <div id="lang_list">
-      <input type="checkbox" name="source[]" value="eff"> <label>Eff English Wordlist</label> <br/>
-      <input type="checkbox" name="source[]" value="id" checked> <label>Indonesian Wordlsit</label> <br/>
+      <input type="checkbox" name="source[]" value="eff" checked> <label>Eff English Wordlist</label> <br/>
+      <input type="checkbox" name="source[]" value="id"> <label>Indonesian Wordlsit</label> <br/>
+      <input type="checkbox" name="source[]" value="ca"> <label>Catalan Wordlsit</label> <br/>
+      <input type="checkbox" name="source[]" value="cn"> <label>Chinese Wordlsit</label> <br/>
+      <input type="checkbox" name="source[]" value="hu"> <label>Hungarian Wordlsit</label> <br/>
+      <input type="checkbox" name="source[]" value="et"> <label>Estonian Wordlsit</label> <br/>
     </div>
   </form>
 </div>
@@ -57,6 +61,10 @@ var loaded_wordlist={},
     wordlist_sources = {
       'eff': 'https://cdn.jsdelivr.net/gh/babelpassgen/wordlist@master/EFF/eff_large_wordlist.txt',
       'id': 'https://cdn.jsdelivr.net/gh/azophy/id-wordlist@master/kompas.lst',
+      'hu': 'https://cdn.jsdelivr.net/gh/luczsoma/HungarianDiceware@master/hungarian-diceware.txt',
+      'et': 'https://täringvara.ee/files/Taringvara.txt',
+      'ca': 'https://cdn.jsdelivr.net/gh/babelpassgen/wordlist@master/CA/wordlist-ascii.txt',
+      'cn': 'https://cdn.jsdelivr.net/gh/babelpassgen/wordlist@master/CN/wordlist.txt',
     };
 
 function loadSources(callback=function(){}) {
