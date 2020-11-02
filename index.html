@@ -78,7 +78,7 @@ function loadSources(callback=function(){}) {
             wordlist = r.responseText.split("\n").map(s => {
               // clean diceware wordlist numbering
               // ref: https://javascript.info/regexp-methods#str-replace-str-regexp-str-func
-              return s.replace(/^\d+\s/,''); 
+              return s.replace(/^\d+\s/,'').trim();
             });
             // store wordlist to memory
             loaded_wordlist[src] = {
