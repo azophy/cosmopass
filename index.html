@@ -46,7 +46,7 @@
   <form id="lang_form">
     <p>Choose languages for passphrase (must be less then #words)</p> 
     <div id="lang_list">
-      <input type="checkbox" name="source[]" value="eff"> <label>Eff Wordlsit</label> <br/>
+      <input type="checkbox" name="source[]" value="eff"> <label>Eff English Wordlist</label> <br/>
       <input type="checkbox" name="source[]" value="id" checked> <label>Indonesian Wordlsit</label> <br/>
     </div>
   </form>
@@ -55,8 +55,8 @@
 
 var loaded_wordlist={},
     wordlist_sources = {
-      'eff': './wordlist/eff.txt',
-      'id': './wordlist/id.txt',
+      'eff': 'https://cdn.jsdelivr.net/gh/babelpassgen/wordlist@master/EFF/eff_large_wordlist.txt',
+      'id': 'https://cdn.jsdelivr.net/gh/azophy/id-wordlist@master/kompas.lst',
     };
 
 function loadSources(callback=function(){}) {
@@ -75,7 +75,11 @@ function loadSources(callback=function(){}) {
         r.open("GET", wordlist_path, true);
         r.onreadystatechange = function () {
             if (r.readyState != 4 || r.status != 200) return;
-            wordlist = r.responseText.split("\n");
+            wordlist = r.responseText.split("\n").map(s => {
+              // clean diceware wordlist numbering
+              // ref: https://javascript.info/regexp-methods#str-replace-str-regexp-str-func
+              return s.replace(/^\d+\s/,''); 
+            });
             // store wordlist to memory
             loaded_wordlist[src] = {
               'list' : wordlist,
