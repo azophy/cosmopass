@@ -57,50 +57,33 @@
 </div>
 <script>
 
-var loaded_wordlist={},
-    wordlist_sources = {
-      'eff': 'https://cdn.jsdelivr.net/gh/babelpassgen/wordlist@master/EFF/eff_large_wordlist.txt',
-      'id': 'https://cdn.jsdelivr.net/gh/azophy/id-wordlist@master/kompas.lst',
-      'hu': 'https://cdn.jsdelivr.net/gh/luczsoma/HungarianDiceware@master/hungarian-diceware.txt',
-      'et': 'https://täringvara.ee/files/Taringvara.txt',
-      'ca': 'https://cdn.jsdelivr.net/gh/babelpassgen/wordlist@master/CA/wordlist-ascii.txt',
-      'cn': 'https://cdn.jsdelivr.net/gh/babelpassgen/wordlist@master/CN/wordlist.txt',
-    };
+var loaded_wordlist={};
 
-function loadSources(callback=function(){}) {
+function loadSources() {
   // load all selected wordlist sources, return promise
   var form_data = new FormData(document.getElementById("lang_form")),
       selected_sources = form_data.getAll('source[]');
 
   var promises = selected_sources.map(function(src) {
-    var promiseObj = new Promise(function(resolve, reject){
-      // get wordlist
-      if (src in loaded_wordlist) {
-        resolve();
-      } else {
-        var wordlist_path = wordlist_sources[src],
-            r = new XMLHttpRequest();
-        r.open("GET", wordlist_path, true);
-        r.onreadystatechange = function () {
-            if (r.readyState != 4 || r.status != 200) return;
-            wordlist = r.responseText.split("\n").map(s => {
-              // clean diceware wordlist numbering
-              // ref: https://javascript.info/regexp-methods#str-replace-str-regexp-str-func
-              return s.replace(/^\d+\s/,'').trim();
+    // get wordlist
+    if (src in loaded_wordlist) {
+      return Promise.resolve();
+    } else {
+      return fetch('./wordlist/'+src+'.txt')
+            .then(response => response.text())
+            .then(response => {
+                wordlist = response.split("\n").map(s => {
+                  // clean diceware wordlist numbering
+                  // ref: https://javascript.info/regexp-methods#str-replace-str-regexp-str-func
+                  return s.replace(/^\d+\s/,'').trim();
+                });
+                // store wordlist to memory
+                loaded_wordlist[src] = {
+                  'list' : wordlist,
+                  'length' : wordlist.length,
+                };
             });
-            // store wordlist to memory
-            loaded_wordlist[src] = {
-              'list' : wordlist,
-              'length' : wordlist.length,
-            };
-
-            resolve();
-        };
-        r.send();
-      }
-    });
-
-    return promiseObj;
+    }
   });
 
   return Promise.all(promises);
@@ -113,38 +96,33 @@ function buildLookupArray() {
       form_data = new FormData(document.getElementById("lang_form")),
       selected_sources = form_data.getAll('source[]'),
       lang_num = selected_sources.length
-
   ;
 
-  var promiseObj = new Promise(function(resolve, reject){
-    // input all language into the beginning of lookup array (to make sure all language selected at least once
-    var lookup_array = selected_sources.slice();
+  // input all language into the beginning of lookup array (to make sure all language selected at least once
+  var lookup_array = selected_sources.slice();
 
-    // fill the rest of lookup array with random selection
-    var random_array = new Uint16Array(word_num-lang_num);
-    window.crypto.getRandomValues(random_array);
-    random_array.forEach(function(val) {
-      // use the beginning of the lookup array to fill the rest of array
-      lookup_array.push(lookup_array[ val % lang_num ]);
-    });
-
-    // shuffle lookup array, use modified fisher-yates algorithm (https://stackoverflow.com/a/6274381)
-    var temp, j, i;
-    random_array = new Uint16Array(word_num-1);
-    window.crypto.getRandomValues(random_array);
-    random_array.forEach(function(val,idx) {
-      i = word_num-idx-1;
-      j = val % (i+1);
-
-      temp=lookup_array[i];
-      lookup_array[i]=lookup_array[j]; 
-      lookup_array[j]=temp;
-    });
-
-    resolve(lookup_array);
+  // fill the rest of lookup array with random selection
+  var random_array = new Uint16Array(word_num-lang_num);
+  window.crypto.getRandomValues(random_array);
+  random_array.forEach(function(val) {
+    // use the beginning of the lookup array to fill the rest of array
+    lookup_array.push(lookup_array[ val % lang_num ]);
   });
 
-  return promiseObj;
+  // shuffle lookup array, use modified fisher-yates algorithm (https://stackoverflow.com/a/6274381)
+  var temp, j, i;
+  random_array = new Uint16Array(word_num-1);
+  window.crypto.getRandomValues(random_array);
+  random_array.forEach(function(val,idx) {
+    i = word_num-idx-1;
+    j = val % (i+1);
+
+    temp=lookup_array[i];
+    lookup_array[i]=lookup_array[j]; 
+    lookup_array[j]=temp;
+  });
+
+  return lookup_array;
 }
 
 function generate() {
@@ -183,9 +161,10 @@ function generate() {
 
     document.getElementById('result').innerText = result.join(' ');
   })
-    .catch((e) => {
-      alert(e);
-    });
+  .catch((e) => {
+    console.log(e);
+    alert(e);
+  });
 }
 
 function copyToClipboard() {
