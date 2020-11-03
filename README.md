@@ -1,4 +1,4 @@
-BabelPassGen
+BabelPass
 ============
 A multi language passphrase generator
 
