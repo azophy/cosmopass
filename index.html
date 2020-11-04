@@ -122,18 +122,30 @@
 </div><!-- end container -->
 <script>
 
-var loaded_wordlist={};
+var loaded_wordlist={},
+num_loading_start=0,
+num_loading_finish=0;
+
+function displayLoading() {
+  document.getElementById('result').innerText = 'loading wordlist... (' + num_loading_finish + '/' + num_loading_start + ')';
+}
 
 function loadSources() {
   // load all selected wordlist sources, return promise
   var form_data = new FormData(document.getElementById("lang_form")),
       selected_sources = form_data.getAll('source[]');
 
+  num_loading_start=0;
+  nun_loading_finish=0;
+
   var promises = selected_sources.map(function(src) {
     // get wordlist
     if (src in loaded_wordlist) {
       return Promise.resolve();
     } else {
+      num_loading_start++;
+      displayLoading();
+
       return fetch('./wordlist/'+src+'.txt')
             .then(response => response.text())
             .then(response => {
@@ -147,6 +159,9 @@ function loadSources() {
                   'list' : wordlist,
                   'length' : wordlist.length,
                 };
+		    
+	        num_loading_finish++;
+	        displayLoading();
             });
     }
   });

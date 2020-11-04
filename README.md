@@ -15,6 +15,6 @@ Taken from various sources. Each wordlist is owned by each respective author.
 ## Copyright and License
 Copyright 2020 Abdurrahman Shofy Adianto
 
-The website is released under <a href="https://www.gnu.org/licenses/#AGPL">GNU AGPLv3</a>
+The website is released under <a href="https://www.gnu.org/licenses/#AGPL">GNU Affero General Public License v3</a>
 
 The wordlist used here is distributed under each original author as listed above
