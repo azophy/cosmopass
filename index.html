@@ -29,6 +29,7 @@
     }
 
     #lang_list {
+      position:relative;
       overflow-y: scroll;
       text-align: left;
       max-width:300px;
@@ -72,12 +73,13 @@
     <form id="lang_form">
       <p>Choose languages for passphrase (must be less then #words)</p> 
       <div id="lang_list" class="input">
-        <label><input type="checkbox" name="source[]" value="en-eff" checked> EFF English Wordlist</label> <br/>
-        <label><input type="checkbox" name="source[]" value="id"> Indonesian Wordlsit</label> <br/>
+        <label><input type="checkbox" name="source[]" value="bg"> Bulgarian Wordlsit</label> <br/>
         <label><input type="checkbox" name="source[]" value="ca"> Catalan Wordlsit</label> <br/>
         <label><input type="checkbox" name="source[]" value="cn"> Chinese Wordlsit</label> <br/>
-        <label><input type="checkbox" name="source[]" value="hu"> Hungarian Wordlsit</label> <br/>
+        <label><input type="checkbox" name="source[]" value="en-eff" checked> EFF English Wordlist</label> <br/>
         <label><input type="checkbox" name="source[]" value="et"> Estonian Wordlsit</label> <br/>
+        <label><input type="checkbox" name="source[]" value="hu"> Hungarian Wordlsit</label> <br/>
+        <label><input type="checkbox" name="source[]" value="id"> Indonesian Wordlsit</label> <br/>
       </div>
     </form>
 
@@ -227,8 +229,13 @@ function generate() {
 
       form_data = new FormData(document.getElementById("lang_form")),
       selected_sources = form_data.getAll('source[]'),
-      lang_num = selected_sources.length
+      lang_num = selected_sources.length,
+      target = document.querySelectorAll('input[type=checkbox]:checked')[0]
   ;
+
+  // scroll to focus on first selected checkbox
+  // ref: https://stackoverflow.com/a/11041376
+  target.parentNode.parentNode.scrollTop = target.offsetTop;
 
   if (selected_sources.length < 1) {
     alert('No wordlist source selected');

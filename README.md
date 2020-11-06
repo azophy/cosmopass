@@ -11,6 +11,7 @@ Taken from various sources. Each wordlist is owned by each respective author.
 4. Chinese (Pinyin) Wordlist (by Chenfeng Bao, https://github.com/cfbao/chinese-diceware, CC-BY-4.0 license)
 5. Estonian (by Kaarel Pärtel, https://täringvara.ee/ , CC-BY-SA-4.0 license)
 6. Hungarian (Soma Lucz, https://github.com/luczsoma/HungarianDiceware, CC-BY-SA-4.0 license)
+7. Bulgarian (yradunchev  http://blog.radunchev.com/2016/06/02/randomized-diceware-word-lists-misc/, CC-BY-4.0 license)
 
 ## Copyright and License
 Copyright 2020 Abdurrahman Shofy Adianto
