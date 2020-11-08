@@ -1,4 +1,4 @@
-BabelPass
+CosmoPass
 ============
 A multi language passphrase generator
 
