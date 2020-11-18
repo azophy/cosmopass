@@ -121,7 +121,7 @@
     </h3>
 
     <p>
-      All passphrases are generated on the browser side using Web Crypto API, so we can't store any passphrase on our server. if you wish to, you could even copy/clone this project from github and host it by yourself!
+    All passphrases are generated on the browser side using <a href="https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues">Web Crypto API</a>, so we can't store any passphrase on our server. if you wish to, you could even copy/clone this project from github and host it by yourself!
     </p>
 
     <h3>
@@ -130,6 +130,24 @@
 
     <p>
       Wordlists used on this page were taken from various sources. See the <a href="https://github.com/cosmopass/cosmopass.github.io" rel="noopener" target="_blank">README of our repo</a> for more information.
+    </p>
+
+    <h3>Why must the number of wordlists selected be less than the number of words generated?</h3>
+
+    <p>
+      Its to make sure that the generated passphrase would contain words from all the wordlist, because the strength of the generated passphrase tied to the used wordlist, not only the selected wordlist.
+    </p>
+
+    <p>
+      For example if you select 5 wordlists but you generate a 1 word passphrase, than to attack it bad actor would only need to bruteforce 1 wordlist (if assumed the attacker know which language the wordlist is). so the strength of it would be equal to when you select just 1 wordlist. 
+    </p>
+
+    <h3>
+      Is using mixed language better then using just 1 language?
+    </h3>
+
+    <p>
+      StackExchange forum has some good discussion <a href="https://security.stackexchange.com/questions/113518/is-it-a-good-idea-to-combine-words-from-different-languages-to-increase-a-passwo" target="_blank">here</a> and <a href="https://security.stackexchange.com/questions/116238/would-a-multilingual-diceware-password-be-more-secure-than-a-monolingual-one" target="_blank">here</a>. Generally, adding more words would had better gain than adding more language. However its still a valid choice if you wish for a limited number of words, or if you have character length limitation.
     </p>
   </section>
 
