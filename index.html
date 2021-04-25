@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimal-ui">
   <title>CosmoPass | Multi-language Passphrase Generator</title>
   <meta name="description" content="Small website to generate random passphrase in multiple languages, currently support English, Indonesian, Catalan, Chinese, Hungarian, Estonian">
-  
+
   <meta name="keywords" content="password, passphrase, xkcd-style, generator">
   <link rel="canonical" href="https://cosmopass.github.io">
   <style>
@@ -54,7 +54,6 @@
     }
   }
   </style>
-  <script async defer data-domain="cosmopass.xyz" src="https://plausible.io/js/plausible.js"></script>
 </head>
 <body>
 <div class="container">
@@ -72,7 +71,7 @@
     </div>
 
     <form id="lang_form">
-      <p>Choose languages for passphrase (must be less then #words)</p> 
+      <p>Choose languages for passphrase (must be less then #words)</p>
       <div id="lang_list" class="input">
         <label><input type="checkbox" name="source[]" value="bg"> Bulgarian Wordlsit</label> <br/>
         <label><input type="checkbox" name="source[]" value="ca"> Catalan Wordlsit</label> <br/>
@@ -88,9 +87,8 @@
     </form>
 
     <div>
-      <iframe src="https://ghbtns.com/github-btn.html?user=cosmopass&repo=cosmopass.github.io&type=star&count=true&size=large" frameborder="0" scrolling="0" width="120" height="30" title="GitHub" style="text-align:right"></iframe>
       <a href="https://ko-fi.com/M4M42ORK0" target="_blank">
-        <img src="https://www.ko-fi.com/img/githubbutton_sm.svg" alt="ko-fi button">
+        <img src="img/ko-fi.svg" alt="ko-fi button">
       </a>
     </div>
   </div><!-- end .hero -->
@@ -112,7 +110,7 @@
     </p>
 
       <p style="overflow-x:scroll">
-        <img alt="XKCD comics about passphrase" src="https://imgs.xkcd.com/comics/password_strength.png" />
+        <img alt="XKCD comics about passphrase" src="img/password_strength.png" />
       </p>
 
     <h3>
@@ -146,7 +144,7 @@
     </p>
 
     <p>
-      For example if you select 5 wordlists but you generate a 1 word passphrase, than to attack it bad actor would only need to bruteforce 1 wordlist (if assumed the attacker know which language the wordlist is). so the strength of it would be equal to when you select just 1 wordlist. 
+      For example if you select 5 wordlists but you generate a 1 word passphrase, than to attack it bad actor would only need to bruteforce 1 wordlist (if assumed the attacker know which language the wordlist is). so the strength of it would be equal to when you select just 1 wordlist.
     </p>
 
     <h3>
@@ -202,7 +200,7 @@ function loadSources() {
                   'list' : wordlist,
                   'length' : wordlist.length,
                 };
-		    
+
 	        num_loading_finish++;
 	        displayLoading();
             });
@@ -241,7 +239,7 @@ function buildLookupArray() {
     j = val % (i+1);
 
     temp=lookup_array[i];
-    lookup_array[i]=lookup_array[j]; 
+    lookup_array[i]=lookup_array[j];
     lookup_array[j]=temp;
   });
 
@@ -307,7 +305,7 @@ function copyToClipboard() {
 
     // Alert the copied text
     alert('Passphrase copied to clipboard');
-} 
+}
 
 // generate at the beginning
 generate();
