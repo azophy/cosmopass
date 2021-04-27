@@ -28,6 +28,11 @@
       background-color: #ddd;
     }
 
+    #result:hover {
+      background-color: #eee;
+      cursor:grab;
+    }
+
     #lang_list {
       position:relative;
       overflow-y: scroll;
@@ -62,7 +67,7 @@
   <div class="hero">
     <h1>CosmoPass</h1>
     <h3>Multi-language Random Passphrase Generator</h3>
-    <div id="result" onclick="copyToClipboard()">loading...</div>
+    <div id="result" onclick="copyToClipboard()" title="Click to copy">loading...</div>
 
     <div>
       <label for="wordnum" class="input">#words:</label> <input type="number" min="1" max="100" size="1" value="6" id="wordnum" class="input">
