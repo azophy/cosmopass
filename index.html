@@ -181,6 +181,9 @@ function loadSources() {
   var form_data = new FormData(document.getElementById("lang_form")),
       selected_sources = form_data.getAll('source[]');
 
+  // store to localstorage
+  localStorage.setItem('selected_sources', JSON.stringify(selected_sources))
+
   num_loading_start=0;
   nun_loading_finish=0;
 
@@ -310,6 +313,16 @@ function copyToClipboard() {
 
     // Alert the copied text
     alert('Passphrase copied to clipboard');
+}
+
+// check saved selected_sources
+var selected_sources = localStorage.getItem('selected_sources')
+if (selected_sources != null) {
+    selected_sources = JSON.parse(selected_sources)
+
+    document.querySelectorAll('[name="source[]"').forEach((i) => { 
+        i.checked = selected_sources.includes(i.value) 
+    })
 }
 
 // generate at the beginning
