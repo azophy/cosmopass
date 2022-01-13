@@ -325,6 +325,17 @@ if (selected_sources != null) {
     })
 }
 
+// if lang query parameter not empty, use it
+const params = new URLSearchParams(window.location.search);
+const lang = params.get("lang");
+if (lang != null) {
+    var selected_sources = lang.split(',')
+
+    document.querySelectorAll('[name="source[]"').forEach((i) => { 
+        i.checked = selected_sources.includes(i.value) 
+    })
+}
+
 // generate at the beginning
 generate();
 
