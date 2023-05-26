@@ -2,7 +2,7 @@ CosmoPass
 ============
 A multi language passphrase generator
 
-![CosmoPass Screenshot](images.png?raw=true "CosmoPass Screenshot")
+![CosmoPass Screenshot](image.png?raw=true "CosmoPass Screenshot")
 
 ## Wordlists
 Taken from various sources. Each wordlist is owned by each respective author.
